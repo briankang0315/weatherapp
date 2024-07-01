@@ -45,7 +45,7 @@ export default function App() {
     }
     // Fetch weather data from OpenWeatherMap API
     const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`);
-    const json = await response.json(); //save the data into JSON
+    const json = await response.json();
     // console.log("API Response:", json);
     
     // Filter and set daily weather data
