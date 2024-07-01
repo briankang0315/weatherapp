@@ -3,11 +3,13 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Dimensions, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { Fontisto } from '@expo/vector-icons';
 
+// Get the screen width for responsive design
+const { width: SCREEN_WIDTH } = Dimensions.get("window"); 
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+// OpenWeatherMap API key (Not good for practice)
+const API_KEY = "1d90d4d7eda8ed0a6c203daf7fe32725"; 
 
-const API_KEY = "1d90d4d7eda8ed0a6c203daf7fe32725";
-
+// Icon mapping for different weather conditions
 const icons = {
   Clouds: "cloudy",
   Clear: "day-sunny",
@@ -18,29 +20,35 @@ const icons = {
   Thunderstorm: "lightning",
 };
 export default function App() {
-  const [city, setCity] = useState("Loading...");
-  const [days, setDays] = useState([]);
-  const [ok, setOk] = useState(true);
+  const [city, setCity] = useState("Loading..."); // State to store the city name
+  const [days, setDays] = useState([]); // State to store weather forecast data
+  const [ok, setOk] = useState(true); // State to check if location permission is granted
+  // Function to get weather data
   const getWeather = async () => {
-    const { granted } = await Location.requestForegroundPermissionsAsync();
-    if (!granted) {
+    const { granted } = await Location.requestForegroundPermissionsAsync(); // Request location permission
+    if (!granted) { // If not granted, set state to false
       setOk(false);
       return;
     }
     try{
+    // Get current location
     const {
       coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }); //current position of the user
+    // Get city name from coordinates
     const location = await Location.reverseGeocodeAsync(
       { latitude, longitude },
       { useGoogleMaps: false }
     );
     if(location.length>0){
-      setCity(location[0].city || "City Not Found");
+      setCity(location[0].city || "City Not Found"); // Set city name or default
     }
+    // Fetch weather data from OpenWeatherMap API
     const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`);
-    const json = await response.json();
-    console.log("API Response:", json);
+    const json = await response.json(); //save the data into JSON
+    // console.log("API Response:", json);
+    
+    // Filter and set daily weather data
     if (json && json.list) {
       setDays(
         json.list.filter((weather) => {
@@ -59,8 +67,7 @@ export default function App() {
     setDays([]);
   }
 };
-
-
+  // Call getWeather on component mount
   useEffect(() => {
     getWeather();
   }, []);
@@ -105,7 +112,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "tomato",
+    backgroundColor: "tomato", // Color for the app background
   },
   city: {
     flex: 1.2,
@@ -121,7 +128,7 @@ const styles = StyleSheet.create({
   day: {
     width: SCREEN_WIDTH,
     alignItems: "flex-start",
-    paddingHorizontal: 50,
+    paddingHorizontal: 50, // Style for each day container
   },
   temp: {
     marginTop: 50,
